@@ -32,12 +32,14 @@ static void parser_entry(void *attack_index, void *p2, void *p3)
 /* Starts the parser thread. */
 int main(void)
 {
+	// Show the address of the device key in memory, to check that the attack failed at accessing it.
+	printk("Device key address: %p\n", credentials_key_addr());
 	/* The attacker would compute this index from the firmware's ELF file. */
 	long attack_index = ((const char *)credentials_key_addr() -
 			     (const char *)parser_settings_addr()) / SETTING_SIZE;
 
 	k_thread_create(&parser_thread, parser_stack, PARSER_STACK_SIZE,
 			parser_entry, (void *)attack_index, NULL, NULL,
-			5, 0, K_NO_WAIT);
+			5, K_USER, K_NO_WAIT);
 	return 0;
 }
